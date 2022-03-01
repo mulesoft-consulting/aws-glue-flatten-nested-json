@@ -431,13 +431,17 @@ def drop_foreign_keys(tbl_df):
 
 # pivot tags to columns
 def clean_tags(tbl_df):
-    pivot_df = tbl_df.filter((col("key") == "product") | \
-                        (col("key") == "component") | \
-                        (col("key") == "asset") | \
-                        (col("key") == "service") | \
-                        (col("key") == "service-short")).groupby("id").pivot("key").agg(first("value"))
-    joined_df = pivot_df.join(tbl_df, "id", "outer").drop(*["key", "value"]).dropDuplicates()
-    return joined_df
+    columns_without_tags = tbl_df.columns
+    columns_without_tags.remove("key")
+    columns_without_tags.remove("value")
+    pivot_df = tbl_df.filter((col("key") == "PRODUCT") | \
+                        (col("key") == "COMPONENT") | \
+                        (col("key") == "ASSET") | \
+                        (col("key") == "SERVICE") | \
+                        (col("key") == "ROLE") | \
+                        (col("key") == "ORGANIZATION_ID") | \
+                        (col("key") == "SERVICE_SHORT")).groupby(columns_without_tags).pivot("key").agg(first("value")).dropDuplicates()
+    return pivot_df
 
 
 # native AWS Glue transforms
