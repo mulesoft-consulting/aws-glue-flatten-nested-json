@@ -16,7 +16,7 @@ def process_column_name(col_name):
             if start_index != i:
                 words.append(col_name[start_index:i].replace(":","").replace("-", "_").lower())
                 start_index = i
-    words.append(col_name[start_index:].lower())
+    words.append(col_name[start_index:].replace(":","").replace("-", "_").lower())
     if len(words) > 1:
         return "_".join(words)
     else:
