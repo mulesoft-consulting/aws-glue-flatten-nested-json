@@ -7,6 +7,7 @@ def convert_struct_to_str(datum):
         datum[field] = str(datum[field]).replace("'", '"')
 
 
+# Helper function to convert a string from camel style to underscore separated
 def process_column_name(col_name):
     words = []
     start_index = 0
@@ -21,7 +22,7 @@ def process_column_name(col_name):
     else:
         return words[0]
 
-
+# Recursively converts all field names from camel style to undersocre separated
 def process_column_names(data):
     data_to_return = data
 
