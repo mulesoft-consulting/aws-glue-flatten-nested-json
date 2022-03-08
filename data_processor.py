@@ -48,5 +48,5 @@ for datum in processed_data["resources"]:
     convert_struct_to_str(datum)
 
 with open(dest_file_path, "w", encoding="utf-8") as f:
-    json.dump(data, f, ensure_ascii=False, indent=4)
+    json.dump(processed_data, f, ensure_ascii=False, indent=4)
 
