@@ -18,7 +18,7 @@ from awsglue.context import GlueContext
 from awsglue.job import Job
 from pyspark.sql.functions import first
 from pyspark.sql.functions import col
-
+from pyspark.sql.functions import lit
 
 # Parameters mapping : retrieve the parameters passed to the Glue job and store them in the array "args"
 
@@ -431,17 +431,29 @@ def drop_foreign_keys(tbl_df):
 
 # pivot tags to columns
 def clean_tags(tbl_df):
-    columns_without_tags = tbl_df.columns
-    columns_without_tags.remove("key")
-    columns_without_tags.remove("value")
+    primary_keys = {"load_balancer_name", "auto_scaling_group_name", "table_name", "volumn_id", "instance_id", 
+                    "cache_cluster_id", "domain_name", "key_id", "db_snapshot_identifier", "db_instance_identifier", "name"}
+
+    primary_key = None
+    for column in tbl_df.columns:
+        if column in primary_keys:
+            primary_key = column
+            break
+
     pivot_df = tbl_df.filter((col("key") == "PRODUCT") | \
                         (col("key") == "COMPONENT") | \
                         (col("key") == "ASSET") | \
                         (col("key") == "SERVICE") | \
-                        (col("key") == "ROLE") | \
-                        (col("key") == "ORGANIZATION_ID") | \
-                        (col("key") == "SERVICE_SHORT")).groupby(columns_without_tags).pivot("key").agg(first("value")).dropDuplicates()
-    return pivot_df
+                        (col("key") == "SERVICE_SHORT")).groupby(primary_key).pivot("key").agg(first("value")).drop(*["key", "value"]).dropDuplicates()
+
+    joined_df = tbl_df.join(pivot_df, primary_key, "left").drop(*["key", "value"]).dropDuplicates()
+
+    tag_keys = ["product", "component", "asset", "service", "service_short"]
+    for tag in tag_keys:
+        if tag not in joined_df.columns:
+            joined_df = joined_df.withColumn(tag, lit(""))
+
+    return joined_df
 
 
 # native AWS Glue transforms

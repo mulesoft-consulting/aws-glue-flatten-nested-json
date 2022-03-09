@@ -38,9 +38,11 @@ def process_column_names(data):
 
     return data_to_return
 
-f = open("instances.json")
+f = open("resources.json")
 data = json.load(f)
-processed_data = process_column_names(data)
+wrapped_data = {"resources": data}
+
+processed_data = process_column_names(wrapped_data)
 for datum in processed_data["resources"]:
     convert_struct_to_str(datum)
 
