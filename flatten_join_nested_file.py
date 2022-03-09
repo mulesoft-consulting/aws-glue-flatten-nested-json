@@ -444,8 +444,6 @@ def clean_tags(tbl_df):
                         (col("key") == "COMPONENT") | \
                         (col("key") == "ASSET") | \
                         (col("key") == "SERVICE") | \
-                        (col("key") == "ROLE") | \
-                        (col("key") == "ORGANIZATION_ID") | \
                         (col("key") == "SERVICE_SHORT")).groupby(primary_key).pivot("key").agg(first("value")).drop(*["key", "value"]).dropDuplicates()
 
     joined_df = tbl_df.join(pivot_df, primary_key, "left").drop(*["key", "value"]).dropDuplicates()
